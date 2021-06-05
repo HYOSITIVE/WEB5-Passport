@@ -1,6 +1,6 @@
 // Last Modification : 2021.06.05
 // by HYOSITIVE
-// based on WEB5 - Passport.js - 4.1
+// based on WEB5 - Passport.js - 4.2
 
 const port = 3000
 var express = require('express')
@@ -30,31 +30,40 @@ app.use(session({ // session middleware
   resave: false, // 세션 데이터가 바뀌기 전까지는 세션 저장소에 값을 저장하지 않는다
   saveUninitialized: true, // 세션이 필요하기 전까지는 세션을 구동시키지 않는다
 	store:new FileStore()
-}))
+}));
+
+var authData = {
+	email:'hyositive_test@gmail.com',
+	password:'111111',
+	nickname:'hyositive'
+};
 
 // passport는 session을 내부적으로 사용하기 때문에, session을 활성화시키는 코드 다음에 passport 코드가 위치해야 한다.
 var passport = require('passport')
 	, LocalStrategy = require('passport-local').Strategy;
 
 passport.use(new LocalStrategy(
-	{
+	{ // passport local 인증을 위한 기본 데이터명은 'username', 'password'이지만, 직접 작성한 프로그램에서는 'email'과 'pwd'를 사용하므로, 명시적으로 알려줘야 함
 		usernameField: 'email',
 		passwordField: 'pwd'
 },
   function(username, password, done) {
 	  console.log('LocalStrategy', username, password);
-	/*
-    User.findOne({ username: username }, function (err, user) {
-      if (err) { return done(err); }
-      if (!user) {
-        return done(null, false, { message: 'Incorrect username.' });
-      }
-      if (!user.validPassword(password)) {
-        return done(null, false, { message: 'Incorrect password.' });
-      }
-      return done(null, user);
-    });
-	*/
+	  if (username === authData.email) {
+		  console.log(1);
+		  if(password === authData.password) { // 인증 성공
+			  console.log(2);
+			  return done(null, authData);
+		  }
+		  else { // 잘못된 password 입력
+			  console.log(3);
+			  return done(null, false, { message: 'Incorrect password.' });
+		  }
+	  }
+	  else { // 잘못된 email 입력
+		  console.log(4);
+		  return done(null, false, { message: 'Incorrect username.' });
+	  }
   }
 ));
 
