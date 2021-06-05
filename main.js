@@ -1,6 +1,6 @@
 // Last Modification : 2021.06.05
 // by HYOSITIVE
-// based on WEB5 - Passport.js - 4.2
+// based on WEB5 - Passport.js - 5.1
 
 const port = 3000
 var express = require('express')
@@ -41,6 +41,19 @@ var authData = {
 // passport는 session을 내부적으로 사용하기 때문에, session을 활성화시키는 코드 다음에 passport 코드가 위치해야 한다.
 var passport = require('passport')
 	, LocalStrategy = require('passport-local').Strategy;
+
+app.use(passport.initialize()); // passport middleware Express에 설치
+app.use(passport.session()); // passport를 통해 session 사용
+
+passport.serializeUser(function(user, done) {
+  // done(null, user.id);
+});
+
+passport.deserializeUser(function(id, done) {
+  // User.findById(id, function(err, user) {
+  //   done(err, user);
+  // });
+});
 
 passport.use(new LocalStrategy(
 	{ // passport local 인증을 위한 기본 데이터명은 'username', 'password'이지만, 직접 작성한 프로그램에서는 'email'과 'pwd'를 사용하므로, 명시적으로 알려줘야 함
