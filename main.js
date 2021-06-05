@@ -1,6 +1,6 @@
-// Last Modification : 2021.06.02
+// Last Modification : 2021.06.05
 // by HYOSITIVE
-// based on WEB4 - Express - Session & Auth - 6.5
+// based on WEB5 - Passport.js - 4.1
 
 const port = 3000
 var express = require('express')
@@ -31,6 +31,36 @@ app.use(session({ // session middleware
   saveUninitialized: true, // 세션이 필요하기 전까지는 세션을 구동시키지 않는다
 	store:new FileStore()
 }))
+
+// passport는 session을 내부적으로 사용하기 때문에, session을 활성화시키는 코드 다음에 passport 코드가 위치해야 한다.
+var passport = require('passport')
+	, LocalStrategy = require('passport-local').Strategy;
+
+passport.use(new LocalStrategy(
+	{
+		usernameField: 'email',
+		passwordField: 'pwd'
+},
+  function(username, password, done) {
+	  console.log('LocalStrategy', username, password);
+	/*
+    User.findOne({ username: username }, function (err, user) {
+      if (err) { return done(err); }
+      if (!user) {
+        return done(null, false, { message: 'Incorrect username.' });
+      }
+      if (!user.validPassword(password)) {
+        return done(null, false, { message: 'Incorrect password.' });
+      }
+      return done(null, user);
+    });
+	*/
+  }
+));
+
+app.post('/auth/login_process', // passport API (local)
+  passport.authenticate('local', { successRedirect: '/',
+                                   failureRedirect: '/auth/login' }));
 
 // my middleware
 // middleware의 함수는 request, response, next를 인자로 가짐
