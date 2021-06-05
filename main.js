@@ -1,6 +1,6 @@
 // Last Modification : 2021.06.05
 // by HYOSITIVE
-// based on WEB5 - Passport.js - 5.1
+// based on WEB5 - Passport.js - 5.2
 
 const port = 3000
 var express = require('express')
@@ -45,11 +45,14 @@ var passport = require('passport')
 app.use(passport.initialize()); // passport middleware Express에 설치
 app.use(passport.session()); // passport를 통해 session 사용
 
-passport.serializeUser(function(user, done) {
-  // done(null, user.id);
+passport.serializeUser(function(user, done) { // 인증 성공 시, authData가 serializeUser의 callback 함수의 user에 들어감
+	console.log('serializeUser', user);
+	done(null, user.email);
 });
 
-passport.deserializeUser(function(id, done) {
+passport.deserializeUser(function(id, done) { // 페이지에 방문할 때마다 deserializeUser 호출. 원본 데이터에서 사용자 정보 탐색
+	console.log('deserializeUser', id);
+	done(null. authData);
   // User.findById(id, function(err, user) {
   //   done(err, user);
   // });
