@@ -1,6 +1,6 @@
 // Last Modification : 2021.06.08
 // by HYOSITIVE
-// based on WEB5 - Passport.js - 8
+// based on WEB5 - Passport.js - 9
 
 const port = 3000
 var express = require('express')
@@ -35,18 +35,6 @@ app.use(session({ // session middleware
 
 app.use(flash()); // flash middleware. request가 들어올 때마다 내부적으로 동작
 // flash message는 1회용 메세지. 내부적으로 session store에 데이터 저장.이후 데이터 사용하면 데이터 삭제
-app.get('/flash', function(req, res){
-  // Set a flash message by passing the key, followed by the value, to req.flash().
-  req.flash('msg', 'Flash is back!!') // flash method 호출하면 session store에 입력한 데이터 추가
-  res.send('flash');
-});
-
-app.get('/flash-display', function(req, res){
-  // Get an array of flash messages by passing the key to req.flash()
-	var fmsg = req.flash();
-	console.log(fmsg);
-	res.send(fmsg);
-});
 
 var authData = { // 실제 구현에서는 사용자 정보 주로 데이터베이스에 보관
 	email:'hyositive_test@gmail.com',
@@ -82,7 +70,7 @@ passport.use(new LocalStrategy(
 		  console.log(1);
 		  if(password === authData.password) { // 인증 성공
 			  console.log(2);
-			  return done(null, authData); // serializeUser의 callback 함수 호출
+			  return done(null, authData, {message: 'Welcome' }); // serializeUser의 callback 함수 호출
 		  }
 		  else { // 잘못된 password 입력
 			  console.log(3);
@@ -99,7 +87,10 @@ passport.use(new LocalStrategy(
 app.post('/auth/login_process', // passport API (local)
   passport.authenticate('local', { 
 	successRedirect: '/',
-	failureRedirect: '/auth/login' }));
+	failureRedirect: '/auth/login',
+	failureFlash:true,
+	successFlash:true
+}));
 
 // my middleware
 // middleware의 함수는 request, response, next를 인자로 가짐
