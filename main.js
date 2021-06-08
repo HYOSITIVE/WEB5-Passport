@@ -1,6 +1,6 @@
-// Last Modification : 2021.06.05
+// Last Modification : 2021.06.08
 // by HYOSITIVE
-// based on WEB5 - Passport.js - 5.2
+// based on WEB5 - Passport.js - 5.3
 
 const port = 3000
 var express = require('express')
@@ -32,7 +32,7 @@ app.use(session({ // session middleware
 	store:new FileStore()
 }));
 
-var authData = {
+var authData = { // 실제 구현에서는 사용자 정보 주로 데이터베이스에 보관
 	email:'hyositive_test@gmail.com',
 	password:'111111',
 	nickname:'hyositive'
@@ -45,17 +45,14 @@ var passport = require('passport')
 app.use(passport.initialize()); // passport middleware Express에 설치
 app.use(passport.session()); // passport를 통해 session 사용
 
-passport.serializeUser(function(user, done) { // 인증 성공 시, authData가 serializeUser의 callback 함수의 user에 들어감
+passport.serializeUser(function(user, done) { // 로그인이 성공했을 때, 사용자의 식별자를 session store에 저장. serializeUser은 최초 로그인 성공 시 1회만 호출. 인증 성공 시, authData가 serializeUser의 callback 함수의 user에 들어감
 	console.log('serializeUser', user);
-	done(null, user.email);
+	done(null, user.email); // session 데이터로 user.email 전송
 });
 
-passport.deserializeUser(function(id, done) { // 페이지에 방문할 때마다 deserializeUser 호출. 원본 데이터에서 사용자 정보 탐색
+passport.deserializeUser(function(id, done) { // 로그인 성공 후 다른 페이지에 방문할 때 마다 로그인 한 사용자인지 체크. 사용자 정보 조회를 위해 페이지에 방문할 때마다 deserializeUser 호출. 이를 위해 done의 인자에 원본 데이터 제공
 	console.log('deserializeUser', id);
-	done(null. authData);
-  // User.findById(id, function(err, user) {
-  //   done(err, user);
-  // });
+	done(null, authData);
 });
 
 passport.use(new LocalStrategy(
@@ -69,7 +66,7 @@ passport.use(new LocalStrategy(
 		  console.log(1);
 		  if(password === authData.password) { // 인증 성공
 			  console.log(2);
-			  return done(null, authData);
+			  return done(null, authData); // serializeUser의 callback 함수 호출
 		  }
 		  else { // 잘못된 password 입력
 			  console.log(3);
@@ -84,8 +81,9 @@ passport.use(new LocalStrategy(
 ));
 
 app.post('/auth/login_process', // passport API (local)
-  passport.authenticate('local', { successRedirect: '/',
-                                   failureRedirect: '/auth/login' }));
+  passport.authenticate('local', { 
+	successRedirect: '/',
+	failureRedirect: '/auth/login' }));
 
 // my middleware
 // middleware의 함수는 request, response, next를 인자로 가짐
