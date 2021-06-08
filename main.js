@@ -1,6 +1,6 @@
 // Last Modification : 2021.06.08
 // by HYOSITIVE
-// based on WEB5 - Passport.js - 5.3
+// based on WEB5 - Passport.js - 6
 
 const port = 3000
 var express = require('express')
@@ -52,7 +52,7 @@ passport.serializeUser(function(user, done) { // 로그인이 성공했을 때, 
 
 passport.deserializeUser(function(id, done) { // 로그인 성공 후 다른 페이지에 방문할 때 마다 로그인 한 사용자인지 체크. 사용자 정보 조회를 위해 페이지에 방문할 때마다 deserializeUser 호출. 이를 위해 done의 인자에 원본 데이터 제공
 	console.log('deserializeUser', id);
-	done(null, authData);
+	done(null, authData); // done의 두 번째 인자로 주입한 유저 정보(authData)가 request의 user라는 객체로 전달
 });
 
 passport.use(new LocalStrategy(
