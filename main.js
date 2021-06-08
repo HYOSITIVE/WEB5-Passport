@@ -1,6 +1,6 @@
 // Last Modification : 2021.06.08
 // by HYOSITIVE
-// based on WEB5 - Passport.js - 6
+// based on WEB5 - Passport.js - 8
 
 const port = 3000
 var express = require('express')
@@ -12,6 +12,7 @@ var helmet = require('helmet');
 app.use(helmet());
 var session = require('express-session')
 var FileStore = require('session-file-store')(session) // 실제로는 데이터베이스에 저장하는 것이 바람직함
+var flash = require('connect-flash');
 
 app.use(express.static('public')); // public directory 안에서 static file을 찾겠다는 의미. public 폴더 안의 파일은 url을 통해 접근 가능
 
@@ -31,6 +32,21 @@ app.use(session({ // session middleware
   saveUninitialized: true, // 세션이 필요하기 전까지는 세션을 구동시키지 않는다
 	store:new FileStore()
 }));
+
+app.use(flash()); // flash middleware. request가 들어올 때마다 내부적으로 동작
+// flash message는 1회용 메세지. 내부적으로 session store에 데이터 저장.이후 데이터 사용하면 데이터 삭제
+app.get('/flash', function(req, res){
+  // Set a flash message by passing the key, followed by the value, to req.flash().
+  req.flash('msg', 'Flash is back!!') // flash method 호출하면 session store에 입력한 데이터 추가
+  res.send('flash');
+});
+
+app.get('/flash-display', function(req, res){
+  // Get an array of flash messages by passing the key to req.flash()
+	var fmsg = req.flash();
+	console.log(fmsg);
+	res.send(fmsg);
+});
 
 var authData = { // 실제 구현에서는 사용자 정보 주로 데이터베이스에 보관
 	email:'hyositive_test@gmail.com',
